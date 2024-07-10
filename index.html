@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> <!-- Отключение масштабирования -->
     <title>Healthy Food Game</title>
     <style>
         body {
@@ -61,7 +61,7 @@
     <div id="message"></div>
     <div id="score">Score: 0</div>
     <div id="timer">Time: 30</div>
-    <canvas id="gameCanvas" width="1080" height="1920"></canvas>
+    <canvas id="gameCanvas"></canvas>
     <audio id="backgroundMusic" loop>
         <source src="path/to/your/music-file.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
@@ -123,9 +123,16 @@
         resizeCanvas();
 
         document.addEventListener('keydown', moveBasket);
-        canvas.addEventListener('touchstart', handleTouch);
+        canvas.addEventListener('touchstart', handleTouchStart);
+        canvas.addEventListener('touchmove', handleTouchMove);
 
-        function handleTouch(event) {
+        function handleTouchStart(event) {
+            const touchX = event.touches[0].clientX;
+            basket.x = touchX - basket.width / 2;
+        }
+
+        function handleTouchMove(event) {
+            event.preventDefault(); // предотвращает прокрутку страницы при касании
             const touchX = event.touches[0].clientX;
             basket.x = touchX - basket.width / 2;
         }
@@ -206,7 +213,7 @@
 
             // Update and draw items
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.01; // Increase fall speed
+                item.y += canvas.height * 0.005; // Уменьшена скорость падения
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
                 // Check for collision with basket
