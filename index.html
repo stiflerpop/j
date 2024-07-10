@@ -105,6 +105,12 @@
     <audio id="missSound">
         <source src="miss.mp3" type="audio/mpeg">
     </audio>
+    <audio id="bombSound">
+        <source src="bomb.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="snowSound">
+        <source src="snow.mp3" type="audio/mpeg">
+    </audio>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -117,6 +123,8 @@
         const backgroundMusic = document.getElementById('backgroundMusic');
         const catchSound = document.getElementById('catchSound');
         const missSound = document.getElementById('missSound');
+        const bombSound = document.getElementById('bombSound');
+        const snowSound = document.getElementById('snowSound');
 
         const goodItemsSrc = [
             '1.png',
@@ -134,14 +142,8 @@
             '8.png',
             '9.png'
         ];
-        const bonusItemsSrc = [
-            'bonus1.png',
-            'bonus2.png'
-        ];
-        const basketSrc = 'basket.png';
-
-        const basketImage = new Image();
-        basketImage.src = basketSrc;
+        const bombSrc = 'bomb.png';
+        const snowSrc = 'snow.png';
 
         const goodItems = goodItemsSrc.map(src => {
             const img = new Image();
@@ -155,58 +157,36 @@
             return img;
         });
 
-        const bonusItems = bonusItemsSrc.map(src => {
-            const img = new Image();
-            img.src = src;
-            return img;
-        });
+        const bombImage = new Image();
+        bombImage.src = bombSrc;
 
-        let basket = { x: 0, y: 0, width: 0, height: 0 };
+        const snowImage = new Image();
+        snowImage.src = snowSrc;
+
         let items = [];
         let score = 0;
         let gameInterval;
         let gameTime = 30;
         let gameStarted = false;
+        let bombAppeared = false;
+        let snowAppeared = false;
+        let isPaused = false;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9;
             canvas.height = window.innerHeight * 0.9;
-            basket.width = canvas.width * 0.2;
-            basket.height = canvas.height * 0.1;
-            basket.x = (canvas.width - basket.width) / 2;
-            basket.y = canvas.height - basket.height - 10;
         }
 
         window.addEventListener('resize', resizeCanvas);
-
-        document.addEventListener('keydown', moveBasket);
-        canvas.addEventListener('touchstart', handleTouchStart);
-        canvas.addEventListener('touchmove', handleTouchMove);
-
-        function handleTouchStart(event) {
-            const touchX = event.touches[0].clientX;
-            basket.x = touchX - basket.width / 2;
-        }
-
-        function handleTouchMove(event) {
-            event.preventDefault();
-            const touchX = event.touches[0].clientX;
-            basket.x = touchX - basket.width / 2;
-        }
-
-        function moveBasket(e) {
-            if (e.key === 'ArrowLeft' && basket.x > 0) {
-                basket.x -= 20;
-            } else if (e.key === 'ArrowRight' && basket.x < canvas.width - basket.width) {
-                basket.x += 20;
-            }
-        }
 
         function startGame() {
             score = 0;
             items = [];
             gameTime = 30;
             gameStarted = true;
+            bombAppeared = false;
+            snowAppeared = false;
+            isPaused = false;
             logo.style.display = 'none';
             title.style.display = 'none';
             document.querySelectorAll('.menu-button').forEach(button => button.style.display = 'none');
@@ -225,10 +205,12 @@
 
         function countdownTimer() {
             let timerInterval = setInterval(() => {
-                gameTime--;
-                timerDiv.innerHTML = `Time: ${gameTime}`;
-                if (gameTime <= 0) {
-                    clearInterval(timerInterval);
+                if (!isPaused) {
+                    gameTime--;
+                    timerDiv.innerHTML = `Time: ${gameTime}`;
+                    if (gameTime <= 0) {
+                        clearInterval(timerInterval);
+                    }
                 }
             }, 1000);
         }
@@ -258,55 +240,92 @@
             document.body.appendChild(explosion);
             setTimeout(() => {
                 document.body.removeChild(explosion);
-            }, 500); // Удаляем элемент после завершения анимации
+            }, 500);
         }
 
         function updateGame() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (isPaused) return;
 
-            // Draw basket
-            ctx.drawImage(basketImage, basket.x, basket.y, basket.width, basket.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Add new item
             if (Math.random() < 0.05) {
-                const isHealthy = Math.random() < 0.5;
+                const type = Math.random();
                 const size = canvas.width * 0.1;
-                const img = isHealthy ? goodItems[Math.floor(Math.random() * goodItems.length)] : badItems[Math.floor(Math.random() * badItems.length)];
-                let x, y = 0;
+                let img, isHealthy;
 
-                let isOverlapping;
-                do {
-                    isOverlapping = false;
-                    x = Math.random() * (canvas.width - size);
-                    for (let item of items) {
-                        if (Math.abs(item.x - x) < size && Math.abs(item.y - y) < size) {
-                            isOverlapping = true;
-                            break;
+                if (type < 0.45) {
+                    img = goodItems[Math.floor(Math.random() * goodItems.length)];
+                    isHealthy = true;
+                } else if (type < 0.9) {
+                    img = badItems[Math.floor(Math.random() * badItems.length)];
+                    isHealthy = false;
+                } else if (type < 0.95 && !bombAppeared) {
+                    img = bombImage;
+                    isHealthy = false;
+                    bombAppeared = true;
+                } else if (!snowAppeared) {
+                    img = snowImage;
+                    isHealthy = false;
+                    snowAppeared = true;
+                }
+
+                if (img) {
+                    let x, y = 0;
+                    let isOverlapping;
+                    do {
+                        isOverlapping = false;
+                        x = Math.random() * (canvas.width - size);
+                        for (let item of items) {
+                            if (Math.abs(item.x - x) < size && Math.abs(item.y - y) < size) {
+                                isOverlapping = true;
+                                break;
+                            }
                         }
-                    }
-                } while (isOverlapping);
+                    } while (isOverlapping);
 
-                items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy });
+                    items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy, type: type });
+                }
             }
 
             // Update and draw items
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.005; // Уменьшена скорость падения
+                item.y += canvas.height * 0.005;
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
-                // Check for collision with basket
-                if (item.y + item.height > basket.y && item.x + item.width > basket.x && item.x < basket.x + basket.width) {
-                    if (item.healthy) {
-                        score += 5;
-                        catchSound.play();
-                    } else {
-                        score -= 10;
-                        missSound.play();
-                        createExplosion(item.x, item.y);
+                // Check for click
+                canvas.addEventListener('click', (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const clickX = e.clientX - rect.left;
+                    const clickY = e.clientY - rect.top;
+
+                    if (clickX >= item.x && clickX <= item.x + item.width && clickY >= item.y && clickY <= item.y + item.height) {
+                        if (item.type >= 0.9 && item.type < 0.95) {
+                            // Bomb
+                            bombSound.play();
+                            score = 0;
+                            createExplosion(item.x, item.y);
+                        } else if (item.type >= 0.95) {
+                            // Snowflake
+                            snowSound.play();
+                            isPaused = true;
+                            setTimeout(() => {
+                                isPaused = false;
+                            }, 3000);
+                        } else if (item.healthy) {
+                            // Good item
+                            score += 5;
+                            catchSound.play();
+                        } else {
+                            // Bad item
+                            score -= 10;
+                            missSound.play();
+                            createExplosion(item.x, item.y);
+                        }
+                        items.splice(index, 1);
+                        scoreDiv.innerHTML = `Score: ${score}`;
                     }
-                    items.splice(index, 1);
-                    scoreDiv.innerHTML = `Score: ${score}`;
-                }
+                });
 
                 // Remove item if it goes off screen
                 if (item.y > canvas.height) {
