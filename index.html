@@ -243,6 +243,30 @@
             }, 500);
         }
 
+        function handleItemClick(index) {
+            const item = items[index];
+            if (item.type === 'bomb') {
+                bombSound.play();
+                score = 0;
+                createExplosion(item.x, item.y);
+            } else if (item.type === 'snow') {
+                snowSound.play();
+                isPaused = true;
+                setTimeout(() => {
+                    isPaused = false;
+                }, 3000);
+            } else if (item.healthy) {
+                score += 5;
+                catchSound.play();
+            } else {
+                score -= 10;
+                missSound.play();
+                createExplosion(item.x, item.y);
+            }
+            items.splice(index, 1);
+            scoreDiv.innerHTML = `Score: ${score}`;
+        }
+
         function updateGame() {
             if (isPaused) return;
 
@@ -252,22 +276,26 @@
             if (Math.random() < 0.05) {
                 const type = Math.random();
                 const size = canvas.width * 0.1;
-                let img, isHealthy;
+                let img, isHealthy, itemType;
 
                 if (type < 0.45) {
                     img = goodItems[Math.floor(Math.random() * goodItems.length)];
                     isHealthy = true;
+                    itemType = 'good';
                 } else if (type < 0.9) {
                     img = badItems[Math.floor(Math.random() * badItems.length)];
                     isHealthy = false;
+                    itemType = 'bad';
                 } else if (type < 0.95 && !bombAppeared) {
                     img = bombImage;
                     isHealthy = false;
                     bombAppeared = true;
+                    itemType = 'bomb';
                 } else if (!snowAppeared) {
                     img = snowImage;
                     isHealthy = false;
                     snowAppeared = true;
+                    itemType = 'snow';
                 }
 
                 if (img) {
@@ -284,7 +312,7 @@
                         }
                     } while (isOverlapping);
 
-                    items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy, type: type });
+                    items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy, type: itemType });
                 }
             }
 
@@ -293,37 +321,24 @@
                 item.y += canvas.height * 0.005;
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
-                // Check for click
+                // Check for touch/click
                 canvas.addEventListener('click', (e) => {
                     const rect = canvas.getBoundingClientRect();
                     const clickX = e.clientX - rect.left;
                     const clickY = e.clientY - rect.top;
 
                     if (clickX >= item.x && clickX <= item.x + item.width && clickY >= item.y && clickY <= item.y + item.height) {
-                        if (item.type >= 0.9 && item.type < 0.95) {
-                            // Bomb
-                            bombSound.play();
-                            score = 0;
-                            createExplosion(item.x, item.y);
-                        } else if (item.type >= 0.95) {
-                            // Snowflake
-                            snowSound.play();
-                            isPaused = true;
-                            setTimeout(() => {
-                                isPaused = false;
-                            }, 3000);
-                        } else if (item.healthy) {
-                            // Good item
-                            score += 5;
-                            catchSound.play();
-                        } else {
-                            // Bad item
-                            score -= 10;
-                            missSound.play();
-                            createExplosion(item.x, item.y);
-                        }
-                        items.splice(index, 1);
-                        scoreDiv.innerHTML = `Score: ${score}`;
+                        handleItemClick(index);
+                    }
+                });
+
+                canvas.addEventListener('touchstart', (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const touchX = e.touches[0].clientX - rect.left;
+                    const touchY = e.touches[0].clientY - rect.top;
+
+                    if (touchX >= item.x && touchX <= item.x + item.width && touchY >= item.y && touchY <= item.y + item.height) {
+                        handleItemClick(index);
                     }
                 });
 
