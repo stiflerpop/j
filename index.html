@@ -16,6 +16,7 @@
             flex-direction: column;
         }
         #gameCanvas {
+            display: none; /* Скрыть canvas по умолчанию */
             border: 1px solid #000;
             background-color: #87CEEB; /* Голубой фон для canvas */
         }
@@ -49,6 +50,7 @@
             width: 80%;
         }
         #score {
+            display: none; /* Скрыть по умолчанию */
             position: absolute;
             top: 10px;
             left: 10px;
@@ -56,6 +58,7 @@
             color: #fff;
         }
         #timer {
+            display: none; /* Скрыть по умолчанию */
             position: absolute;
             top: 10px;
             right: 10px;
@@ -132,7 +135,6 @@
         }
 
         window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
 
         document.addEventListener('keydown', moveBasket);
         canvas.addEventListener('touchstart', handleTouchStart);
@@ -165,10 +167,14 @@
             logo.style.display = 'none';
             title.style.display = 'none';
             startButton.style.display = 'none';
+            canvas.style.display = 'block'; // Показать canvas
+            scoreDiv.style.display = 'block'; // Показать счет
+            timerDiv.style.display = 'block'; // Показать таймер
             messageDiv.innerHTML = '';
             scoreDiv.innerHTML = `Score: ${score}`;
             timerDiv.innerHTML = `Time: ${gameTime}`;
             backgroundMusic.play(); // Start playing background music
+            resizeCanvas(); // Убедиться, что canvas имеет правильный размер перед началом игры
             gameInterval = setInterval(updateGame, 1000 / 60);
             setTimeout(endGame, gameTime * 1000);
             countdownTimer();
