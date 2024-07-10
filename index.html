@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthy Food Game</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #87CEEB; /* Голубой фон */
+        }
+        #gameCanvas {
+            border: 1px solid #000;
+            background-color: #87CEEB; /* Голубой фон для canvas */
+        }
+        #startButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            text-align: center;
+            width: 80%;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: #fff;
+        }
+        #timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <button id="startButton">Начать игру</button>
+    <div id="message"></div>
+    <div id="score">Score: 0</div>
+    <div id="timer">Time: 30</div>
+    <canvas id="gameCanvas" width="1080" height="1920"></canvas>
+    <audio id="backgroundMusic" loop>
+        <source src="path/to/your/music-file.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('startButton');
+        const messageDiv = document.getElementById('message');
+        const scoreDiv = document.getElementById('score');
+        const timerDiv = document.getElementById('timer');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        const goodItemsSrc = [
+            'C:/Users/New/Desktop/Game Julia/Good/1.png',
+            'C:/Users/New/Desktop/Game Julia/Good/2.png',
+            'C:/Users/New/Desktop/Game Julia/Good/3.png'
+        ];
+        const badItemsSrc = [
+            'C:/Users/New/Desktop/Game Julia/Nogood/1.png',
+            'C:/Users/New/Desktop/Game Julia/Nogood/2.png',
+            'C:/Users/New/Desktop/Game Julia/Nogood/3.png'
+        ];
+        const basketSrc = 'C:/Users/New/Desktop/Game Julia/basket.png';
+
+        const basketImage = new Image();
+        basketImage.src = basketSrc;
+
+        const goodItems = goodItemsSrc.map(src => {
+            const img = new Image();
+            img.src = src;
+            return img;
+        });
+
+        const badItems = badItemsSrc.map(src => {
+            const img = new Image();
+            img.src = src;
+            return img;
+        });
+
+        let basket = { x: 0, y: 0, width: 0, height: 0 };
+        let items = [];
+        let score = 0;
+        let gameInterval;
+        let gameTime = 30;
+        let gameStarted = false;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * 0.9; // 90% of viewport width
+            canvas.height = window.innerHeight * 0.9; // 90% of viewport height
+            basket.width = canvas.width * 0.1;
+            basket.height = canvas.height * 0.05;
+            basket.x = (canvas.width - basket.width) / 2;
+            basket.y = canvas.height - basket.height - 10;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        document.addEventListener('keydown', moveBasket);
+        canvas.addEventListener('touchstart', handleTouch);
+
+        function handleTouch(event) {
+            const touchX = event.touches[0].clientX;
+            basket.x = touchX - basket.width / 2;
+        }
+
+        function moveBasket(e) {
+            if (e.key === 'ArrowLeft' && basket.x > 0) {
+                basket.x -= 20;
+            } else if (e.key === 'ArrowRight' && basket.x < canvas.width - basket.width) {
+                basket.x += 20;
+            }
+        }
+
+        function startGame() {
+            score = 0;
+            items = [];
+            gameTime = 30;
+            gameStarted = true;
+            startButton.style.display = 'none';
+            messageDiv.innerHTML = '';
+            scoreDiv.innerHTML = `Score: ${score}`;
+            timerDiv.innerHTML = `Time: ${gameTime}`;
+            backgroundMusic.play(); // Start playing background music
+            gameInterval = setInterval(updateGame, 1000 / 60);
+            setTimeout(endGame, gameTime * 1000);
+            countdownTimer();
+        }
+
+        function countdownTimer() {
+            let timerInterval = setInterval(() => {
+                gameTime--;
+                timerDiv.innerHTML = `Time: ${gameTime}`;
+                if (gameTime <= 0) {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            gameStarted = false;
+            backgroundMusic.pause(); // Pause the background music
+            backgroundMusic.currentTime = 0; // Reset music to the beginning
+            if (score >= 30) {
+                const promoCode = 'DISCOUNT10';
+                messageDiv.innerHTML = `Поздравляем! Вы набрали ${score} баллов и получили скидку 10%!<br>Ваш промокод: ${promoCode}<br><a href="https://www.google.com" target="_blank">Перейти на сайт</a><br><button onclick="startGame()">Начать заново</button>`;
+            } else {
+                messageDiv.innerHTML = `Вы набрали ${score} баллов. Попробуйте еще раз!<br><button onclick="startGame()">Начать заново</button>`;
+            }
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw basket
+            ctx.drawImage(basketImage, basket.x, basket.y, basket.width, basket.height);
+
+            // Add new item
+            if (Math.random() < 0.05) {
+                const isHealthy = Math.random() < 0.5;
+                const size = canvas.width * 0.1;
+                const img = isHealthy ? goodItems[Math.floor(Math.random() * goodItems.length)] : badItems[Math.floor(Math.random() * badItems.length)];
+                let x, y = 0;
+
+                let isOverlapping;
+                do {
+                    isOverlapping = false;
+                    x = Math.random() * (canvas.width - size);
+                    for (let item of items) {
+                        if (Math.abs(item.x - x) < size && Math.abs(item.y - y) < size) {
+                            isOverlapping = true;
+                            break;
+                        }
+                    }
+                } while (isOverlapping);
+
+                items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy });
+            }
+
+            // Update and draw items
+            items.forEach((item, index) => {
+                item.y += canvas.height * 0.01; // Increase fall speed
+                ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
+
+                // Check for collision with basket
+                if (item.y + item.height > basket.y && item.x + item.width > basket.x && item.x < basket.x + basket.width) {
+                    if (item.healthy) {
+                        score += 5;
+                    } else {
+                        score -= 10;
+                    }
+                    items.splice(index, 1);
+                    scoreDiv.innerHTML = `Score: ${score}`;
+                }
+
+                // Remove item if it goes off screen
+                if (item.y > canvas.height) {
+                    items.splice(index, 1);
+                }
+            });
+        }
+
+        startButton.addEventListener('click', startGame);
+    </script>
+</body>
+</html>
