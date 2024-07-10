@@ -41,6 +41,7 @@
             margin-top: 20px;
         }
         #message {
+            display: none;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -162,7 +163,6 @@
         let gameStarted = false;
         let bombAppeared = 0;
         let isPaused = false;
-        let speedMultiplier = 1;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9;
@@ -178,14 +178,13 @@
             gameStarted = true;
             bombAppeared = 0;
             isPaused = false;
-            speedMultiplier = 1;
             logo.style.display = 'none';
             title.style.display = 'none';
             document.querySelectorAll('.menu-button').forEach(button => button.style.display = 'none');
             canvas.style.display = 'block';
             scoreDiv.style.display = 'block';
             timerDiv.style.display = 'block';
-            messageDiv.innerHTML = '';
+            messageDiv.style.display = 'none';
             scoreDiv.innerHTML = `Счет: ${score}`;
             timerDiv.innerHTML = `Время: ${gameTime}`;
             backgroundMusic.play();
@@ -221,12 +220,24 @@
             canvas.style.display = 'none';
             scoreDiv.style.display = 'none';
             timerDiv.style.display = 'none';
+            messageDiv.style.display = 'block';
             let message;
             if (score >= 30) {
                 const promoCode = 'DISCOUNT10';
-                message = `Поздравляем! Вы набрали ${score} баллов и получили скидку 10%!<br>Ваш промокод: ${promoCode}<br>Просто сделайте скриншот и покажите его при обращении.<br><img src="qr_code_placeholder.png" alt="QR Code"><br><button onclick="startGame()" class="menu-button">Сыграть еще раз</button>`;
+                message = `
+                    <div style="text-align: center;">
+                        Поздравляем! Вы набрали ${score} баллов и получили скидку 10%!<br>
+                        Ваш промокод: ${promoCode}<br>
+                        Просто сделайте скриншот и покажите его при обращении.<br>
+                        <img src="qr_code_placeholder.png" alt="QR Code"><br>
+                        <button onclick="startGame()" class="menu-button">Сыграть еще раз</button>
+                    </div>`;
             } else {
-                message = `Вы набрали ${score} баллов. К сожалению, для получения скидки вам нужно попробовать еще раз.<br><button onclick="startGame()" class="menu-button">Сыграть еще раз</button>`;
+                message = `
+                    <div style="text-align: center;">
+                        Вы набрали ${score} баллов. К сожалению, для получения скидки вам нужно попробовать еще раз.<br>
+                        <button onclick="startGame()" class="menu-button">Сыграть еще раз</button>
+                    </div>`;
             }
             messageDiv.innerHTML = message;
         }
@@ -334,7 +345,7 @@
 
             // Update and draw items
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.005 * speedMultiplier;
+                item.y += canvas.height * 0.005;
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
                 // Remove item if it goes off screen
@@ -342,11 +353,6 @@
                     items.splice(index, 1);
                 }
             });
-
-            // Increase speed every 10 seconds
-            if (gameTime === 20 || gameTime === 10 || gameTime === 0) {
-                speedMultiplier += 0.5;
-            }
         }
 
         canvas.addEventListener('click', checkItemClick);
