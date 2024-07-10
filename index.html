@@ -17,7 +17,7 @@
         }
         #gameCanvas {
             display: none; /* Скрыть canvas по умолчанию */
-            border: 1px solid #000;
+            border: 1px solid transparent; /* Прозрачная рамка */
             background-color: #87CEEB; /* Голубой фон для canvas */
         }
         #logo {
@@ -128,8 +128,8 @@
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9; // 90% of viewport width
             canvas.height = window.innerHeight * 0.9; // 90% of viewport height
-            basket.width = canvas.width * 0.1;
-            basket.height = canvas.height * 0.05;
+            basket.width = canvas.width * 0.2; // Увеличена ширина корзинки
+            basket.height = canvas.height * 0.1; // Увеличена высота корзинки
             basket.x = (canvas.width - basket.width) / 2;
             basket.y = canvas.height - basket.height - 10;
         }
