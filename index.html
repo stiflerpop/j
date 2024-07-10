@@ -65,6 +65,14 @@
             font-size: 24px;
             color: #fff;
         }
+        #gif {
+            display: none; /* Скрыть GIF по умолчанию */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000; /* Поверх всех элементов */
+        }
     </style>
 </head>
 <body>
@@ -79,6 +87,7 @@
         <source src="1.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    <img id="gif" src="u.gif" alt="GIF">
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -89,6 +98,7 @@
         const messageDiv = document.getElementById('message');
         const scoreDiv = document.getElementById('score');
         const timerDiv = document.getElementById('timer');
+        const gif = document.getElementById('gif');
         const backgroundMusic = document.getElementById('backgroundMusic');
 
         const goodItemsSrc = [
@@ -201,6 +211,18 @@
             gameStarted = false;
             backgroundMusic.pause(); // Pause the background music
             backgroundMusic.currentTime = 0; // Reset music to the beginning
+            showGif(); // Показать GIF перед отображением результата
+        }
+
+        function showGif() {
+            gif.style.display = 'block'; // Показать GIF
+            setTimeout(() => {
+                gif.style.display = 'none'; // Скрыть GIF после 4 секунд
+                showEndMessage();
+            }, 4000);
+        }
+
+        function showEndMessage() {
             if (score >= 30) {
                 const promoCode = 'DISCOUNT10';
                 messageDiv.innerHTML = `Поздравляем! Вы набрали ${score} баллов и получили скидку 10%!<br>Ваш промокод: ${promoCode}<br><a href="https://www.google.com" target="_blank">Перейти на сайт</a><br><button onclick="startGame()">Начать заново</button>`;
