@@ -267,6 +267,34 @@
             scoreDiv.innerHTML = `Score: ${score}`;
         }
 
+        function checkItemClick(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                if (clickX >= item.x && clickX <= item.x + item.width && clickY >= item.y && clickY <= item.y + item.height) {
+                    handleItemClick(i);
+                    break;
+                }
+            }
+        }
+
+        function checkItemTouch(e) {
+            const rect = canvas.getBoundingClientRect();
+            const touchX = e.touches[0].clientX - rect.left;
+            const touchY = e.touches[0].clientY - rect.top;
+
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                if (touchX >= item.x && touchX <= item.x + item.width && touchY >= item.y && touchY <= item.y + item.height) {
+                    handleItemClick(i);
+                    break;
+                }
+            }
+        }
+
         function updateGame() {
             if (isPaused) return;
 
@@ -321,33 +349,15 @@
                 item.y += canvas.height * 0.005;
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
-                // Check for touch/click
-                canvas.addEventListener('click', (e) => {
-                    const rect = canvas.getBoundingClientRect();
-                    const clickX = e.clientX - rect.left;
-                    const clickY = e.clientY - rect.top;
-
-                    if (clickX >= item.x && clickX <= item.x + item.width && clickY >= item.y && clickY <= item.y + item.height) {
-                        handleItemClick(index);
-                    }
-                });
-
-                canvas.addEventListener('touchstart', (e) => {
-                    const rect = canvas.getBoundingClientRect();
-                    const touchX = e.touches[0].clientX - rect.left;
-                    const touchY = e.touches[0].clientY - rect.top;
-
-                    if (touchX >= item.x && touchX <= item.x + item.width && touchY >= item.y && touchY <= item.y + item.height) {
-                        handleItemClick(index);
-                    }
-                });
-
                 // Remove item if it goes off screen
                 if (item.y > canvas.height) {
                     items.splice(index, 1);
                 }
             });
         }
+
+        canvas.addEventListener('click', checkItemClick);
+        canvas.addEventListener('touchstart', checkItemTouch);
 
         startButton.addEventListener('click', startGame);
     </script>
