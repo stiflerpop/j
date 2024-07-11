@@ -222,7 +222,7 @@
             timerDiv.style.display = 'none';
             messageDiv.style.display = 'block';
             let message;
-            if (score >= 30) {
+            if (score >= 100) {
                 const promoCode = 'DISCOUNT10';
                 message = `
                     <div style="text-align: center;">
@@ -307,7 +307,7 @@
             // Add new item
             if (Math.random() < 0.05) {
                 const type = Math.random();
-                const size = canvas.width * 0.1;
+                const size = canvas.width * 0.12; // Увеличен размер объектов
                 let img, isHealthy, itemType;
 
                 if (type < 0.4) {
@@ -345,7 +345,7 @@
 
             // Update and draw items
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.005;
+                item.y += canvas.height * 0.006; // Увеличена скорость падения объектов
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
                 // Remove item if it goes off screen
