@@ -98,6 +98,14 @@
             width: 200px;
             height: 200px;
         }
+        .result-message {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #4CAF50;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -257,8 +265,10 @@
                 message = `
                     <div style="text-align: center;">
                         <h2>Игра окончена</h2>
-                        <p>Вы набрали ${score} баллов.</p>
-                        <p>К сожалению, для получения скидки вам нужно набрать 100 баллов или больше.</p>
+                        <p class="result-message">Вы набрали <span class="highlight">${score} баллов</span>.</p>
+                        <p class="result-message">Отличная попытка! Для получения скидки нужно набрать 100 баллов или больше.</p>
+                        <p>Не расстраивайтесь, у вас обязательно получится в следующий раз!</p>
+                        <p>Хотите попробовать еще раз?</p>
                         <button onclick="startGame()" class="menu-button">Играть снова</button>
                     </div>`;
                 messageDiv.innerHTML = message;
