@@ -85,6 +85,7 @@
             }
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrjs2/qrjs2.min.js"></script>
 </head>
 <body>
     <img id="logo" src="11.png" alt="Logo">
@@ -158,11 +159,11 @@
 
         let items = [];
         let score = 0;
-        let gameInterval;
         let gameTime = 30;
         let gameStarted = false;
         let bombAppeared = 0;
         let isPaused = false;
+        let lastTimestamp = 0;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9;
@@ -178,6 +179,7 @@
             gameStarted = true;
             bombAppeared = 0;
             isPaused = false;
+            lastTimestamp = 0;
             logo.style.display = 'none';
             title.style.display = 'none';
             document.querySelectorAll('.menu-button').forEach(button => button.style.display = 'none');
@@ -189,8 +191,7 @@
             timerDiv.innerHTML = `Время: ${gameTime}`;
             backgroundMusic.play();
             resizeCanvas();
-            gameInterval = setInterval(updateGame, 1000 / 60);
-            setTimeout(endGame, gameTime * 1000);
+            window.requestAnimationFrame(updateGame);
             countdownTimer();
         }
 
@@ -201,13 +202,13 @@
                     timerDiv.innerHTML = `Время: ${gameTime}`;
                     if (gameTime <= 0) {
                         clearInterval(timerInterval);
+                        endGame();
                     }
                 }
             }, 1000);
         }
 
         function endGame() {
-            clearInterval(gameInterval);
             gameStarted = false;
             backgroundMusic.pause();
             backgroundMusic.currentTime = 0;
@@ -229,9 +230,10 @@
                         Поздравляем! Вы набрали ${score} баллов и получили скидку 10%!<br>
                         Ваш промокод: ${promoCode}<br>
                         Просто сделайте скриншот и покажите его при обращении.<br>
-                        <img src="qr_code_placeholder.png" alt="QR Code"><br>
+                        <div id="qrCode"></div><br>
                         <button onclick="startGame()" class="menu-button">Сыграть еще раз</button>
                     </div>`;
+                generateQRCode(promoCode);
             } else {
                 message = `
                     <div style="text-align: center;">
@@ -240,6 +242,16 @@
                     </div>`;
             }
             messageDiv.innerHTML = message;
+        }
+
+        function generateQRCode(text) {
+            const qrCodeDiv = document.getElementById('qrCode');
+            qrCodeDiv.innerHTML = '';
+            new QRCode(qrCodeDiv, {
+                text: text,
+                width: 128,
+                height: 128
+            });
         }
 
         function createExplosion(x, y) {
@@ -299,8 +311,10 @@
             }
         }
 
-        function updateGame() {
-            if (isPaused) return;
+        function updateGame(timestamp) {
+            if (!gameStarted) return;
+            const delta = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -345,7 +359,7 @@
 
             // Update and draw items
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.006; // Увеличена скорость падения объектов
+                item.y += canvas.height * 0.006 * (delta / 16.67); // Увеличена скорость падения объектов
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
                 // Remove item if it goes off screen
@@ -353,6 +367,8 @@
                     items.splice(index, 1);
                 }
             });
+
+            window.requestAnimationFrame(updateGame);
         }
 
         canvas.addEventListener('click', checkItemClick);
