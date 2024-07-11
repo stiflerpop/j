@@ -18,6 +18,7 @@
         #gameCanvas {
             display: none;
             border: 1px solid transparent;
+            border-radius: 20px; /* Скругленные углы */
         }
         #logo {
             margin-top: 20px;
@@ -226,7 +227,7 @@
             messageDiv.style.display = 'block';
             let message;
             if (score >= 100) {
-                const promoCode = 'DISCOUNT10';
+                const promoCode = 'https://www.instagram.com/yanutritiolog/';
                 message = `
                     <div style="text-align: center;">
                         Поздравляем! Вы получаете скидку 10 % на все услуги нутрициолога Юлии Поповой.<br>
@@ -236,7 +237,7 @@
                         <button onclick="startGame()" class="menu-button">Сыграть еще раз</button>
                     </div>`;
                 messageDiv.innerHTML = message;
-                generateQRCode('https://www.instagram.com/yanutritiolog/');
+                generateQRCode(promoCode);
             } else {
                 message = `
                     <div style="text-align: center;">
