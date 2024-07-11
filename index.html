@@ -18,7 +18,7 @@
         #gameCanvas {
             display: none;
             border: 1px solid transparent;
-            border-radius: 20px; /* Скругленные углы */
+            border-radius: 20px;
         }
         #logo {
             margin-top: 20px;
@@ -85,7 +85,7 @@
             }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/qrjs2/qrjs2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <img id="logo" src="11.png" alt="Logo">
@@ -215,8 +215,8 @@
             gameStarted = false;
             backgroundMusic.pause();
             backgroundMusic.currentTime = 0;
-            items = []; // Очистить все предметы с экрана
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Очистить canvas
+            items = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             showEndMessage();
         }
 
@@ -321,13 +321,11 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw background image
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
-            // Add new item
             if (Math.random() < 0.05) {
                 const type = Math.random();
-                const size = canvas.width * 0.12; // Увеличен размер объектов
+                const size = canvas.width * 0.12;
                 let img, isHealthy, itemType;
 
                 if (type < 0.4) {
@@ -363,12 +361,10 @@
                 }
             }
 
-            // Update and draw items
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.006 * (delta / 16.67); // Увеличена скорость падения объектов
+                item.y += canvas.height * 0.006 * (delta / 16.67);
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
-                // Remove item if it goes off screen
                 if (item.y > canvas.height) {
                     items.splice(index, 1);
                 }
