@@ -90,9 +90,7 @@
 <body>
     <img id="logo" src="11.png" alt="Logo">
     <div id="title">Julia Game</div>
-    <button class="menu-button" onclick="startGame()">Начать игру</button>
-    <button class="menu-button" onclick="showInstructions()">Инструкции</button>
-    <button class="menu-button" onclick="showSettings()">Настройки</button>
+    <button id="startButton" class="menu-button">Начать игру</button>
     <div id="message"></div>
     <div id="score">Счет: 0</div>
     <div id="timer">Время: 30</div>
@@ -123,6 +121,7 @@
         const catchSound = document.getElementById('catchSound');
         const missSound = document.getElementById('missSound');
         const bombSound = document.getElementById('bombSound');
+        const startButton = document.getElementById('startButton');
 
         const goodItemsSrc = [
             '1.png',
@@ -182,7 +181,7 @@
             lastTimestamp = 0;
             logo.style.display = 'none';
             title.style.display = 'none';
-            document.querySelectorAll('.menu-button').forEach(button => button.style.display = 'none');
+            startButton.style.display = 'none';
             canvas.style.display = 'block';
             scoreDiv.style.display = 'block';
             timerDiv.style.display = 'block';
@@ -233,6 +232,7 @@
                         <div id="qrCode"></div><br>
                         <button onclick="startGame()" class="menu-button">Сыграть еще раз</button>
                     </div>`;
+                messageDiv.innerHTML = message;
                 generateQRCode(promoCode);
             } else {
                 message = `
@@ -240,8 +240,8 @@
                         Вы набрали ${score} баллов. К сожалению, для получения скидки вам нужно попробовать еще раз.<br>
                         <button onclick="startGame()" class="menu-button">Сыграть еще раз</button>
                     </div>`;
+                messageDiv.innerHTML = message;
             }
-            messageDiv.innerHTML = message;
         }
 
         function generateQRCode(text) {
