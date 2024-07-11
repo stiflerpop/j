@@ -106,6 +106,42 @@
             font-weight: bold;
             color: #4CAF50;
         }
+        #instructionsButton {
+            margin-top: 10px;
+        }
+        #instructionsModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -113,6 +149,7 @@
     <img id="logo" src="11.png" alt="Logo">
     <div id="title">Julia Game</div>
     <button id="startButton" class="menu-button">Начать игру</button>
+    <button id="instructionsButton" class="menu-button">Как играть?</button>
     <div id="message"></div>
     <div id="score">Счет: 0</div>
     <div id="timer">Время: 30</div>
@@ -131,6 +168,21 @@
         <source src="bomb.mp3" type="audio/mpeg">
     </audio>
 
+    <div id="instructionsModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Как играть?</h2>
+            <p>1. Ваша цель - собирать полезные продукты и избегать вредных.</p>
+            <p>2. Нажимайте на падающие продукты, чтобы собрать их.</p>
+            <p>3. Полезные продукты приносят 5 очков.</p>
+            <p>4. Вредные продукты отнимают 10 очков.</p>
+            <p>5. Бомбы отнимают 20 очков. Будьте осторожны!</p>
+            <p>6. У вас есть 30 секунд, чтобы набрать как можно больше очков.</p>
+            <p>7. Наберите 100 очков или больше, чтобы получить скидку!</p>
+            <p>Удачи!</p>
+        </div>
+    </div>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -144,6 +196,9 @@
         const missSound = document.getElementById('missSound');
         const bombSound = document.getElementById('bombSound');
         const startButton = document.getElementById('startButton');
+        const instructionsButton = document.getElementById('instructionsButton');
+        const instructionsModal = document.getElementById('instructionsModal');
+        const closeButton = document.getElementsByClassName('close')[0];
 
         const goodItemsSrc = [
             '1.png',
@@ -189,6 +244,8 @@
         let bombAppeared = 0;
         let isPaused = false;
         let lastTimestamp = 0;
+        let lastItemTime = 0;
+        const itemInterval = 1000; // Интервал появления новых предметов (в миллисекундах)
 
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9;
@@ -205,9 +262,11 @@
             bombAppeared = 0;
             isPaused = false;
             lastTimestamp = 0;
+            lastItemTime = 0;
             logo.style.display = 'none';
             title.style.display = 'none';
             startButton.style.display = 'none';
+            instructionsButton.style.display = 'none';
             canvas.style.display = 'block';
             scoreDiv.style.display = 'block';
             timerDiv.style.display = 'block';
@@ -247,15 +306,19 @@
             scoreDiv.style.display = 'none';
             timerDiv.style.display = 'none';
             messageDiv.style.display = 'block';
+            instructionsButton.style.display = 'block';
             let message;
             if (score >= 100) {
                 const promoCode = 'https://www.instagram.com/yanutritiolog/';
+                const endDate = new Date();
+                endDate.setDate(endDate.getDate() + 14);
+                const formattedEndDate = endDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
                 message = `
                     <div style="text-align: center;">
                         <h2>Поздравляем!</h2>
                         <p>Вы получаете скидку 10% на все услуги нутрициолога Юлии Поповой.</p>
                         <p>Для получения скидки, сделайте скриншот этой странички и предъявите его при обращении.</p>
-                        <p>Скидка действует всего 5 дней.</p>
+                        <p>Скидка действует до <span style="font-weight: bold; color: #4CAF50;">${formattedEndDate}</span> включительно.</p>
                         <div id="qrCode"></div>
                         <button onclick="startGame()" class="menu-button" style="margin-top: 20px;">Играть снова</button>
                     </div>`;
@@ -329,83 +392,3 @@
         }
 
         function checkItemTouch(e) {
-            e.preventDefault();  // Предотвращаем стандартное поведение касания
-            const rect = canvas.getBoundingClientRect();
-            const touchX = e.touches[0].clientX - rect.left;
-            const touchY = e.touches[0].clientY - rect.top;
-
-            for (let i = items.length - 1; i >= 0; i--) {
-                const item = items[i];
-                if (touchX >= item.x && touchX <= item.x + item.width && touchY >= item.y && touchY <= item.y + item.height) {
-                    handleItemClick(i);
-                    break;
-                }
-            }
-        }
-
-        function updateGame(timestamp) {
-            if (!gameStarted) return;
-            const delta = timestamp - lastTimestamp;
-            lastTimestamp = timestamp;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-
-            if (Math.random() < 0.05) {
-                const type = Math.random();
-                const size = canvas.width * 0.12;
-                let img, isHealthy, itemType;
-
-                if (type < 0.4) {
-                    img = goodItems[Math.floor(Math.random() * goodItems.length)];
-                    isHealthy = true;
-                    itemType = 'good';
-                } else if (type < 0.8) {
-                    img = badItems[Math.floor(Math.random() * badItems.length)];
-                    isHealthy = false;
-                    itemType = 'bad';
-                } else {
-                    img = bombImage;
-                    isHealthy = false;
-                    bombAppeared++;
-                    itemType = 'bomb';
-                }
-
-                if (img) {
-                    let x, y = 0;
-                    let isOverlapping;
-                    do {
-                        isOverlapping = false;
-                        x = Math.random() * (canvas.width - size);
-                        for (let item of items) {
-                            if (Math.abs(item.x - x) < size && Math.abs(item.y - y) < size) {
-                                isOverlapping = true;
-                                break;
-                            }
-                        }
-                    } while (isOverlapping);
-
-                    items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy, type: itemType });
-                }
-            }
-
-            items.forEach((item, index) => {
-                item.y += canvas.height * 0.006 * (delta / 16.67);
-                ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
-
-                if (item.y > canvas.height) {
-                    items.splice(index, 1);
-                }
-            });
-
-            window.requestAnimationFrame(updateGame);
-        }
-
-        canvas.addEventListener('click', checkItemClick);
-        canvas.addEventListener('touchstart', checkItemTouch);
-
-        startButton.addEventListener('click', startGame);
-    </script>
-</body>
-</html>
