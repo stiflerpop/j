@@ -14,6 +14,7 @@
             height: 100vh;
             background-color: #87CEEB;
             flex-direction: column;
+            font-family: Arial, sans-serif;
         }
         #gameCanvas {
             display: none;
@@ -49,6 +50,10 @@
             font-size: 24px;
             text-align: center;
             width: 80%;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         #score {
             display: none;
@@ -83,6 +88,15 @@
                 transform: scale(2);
                 opacity: 0;
             }
+        }
+        #qrCode {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        #qrCode img {
+            width: 200px;
+            height: 200px;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -230,18 +244,22 @@
                 const promoCode = 'https://www.instagram.com/yanutritiolog/';
                 message = `
                     <div style="text-align: center;">
-                        Поздравляем! Вы получаете скидку 10 % на все услуги нутрициолога Юлии Поповой.<br>
-                        Для получения скидки, сделайте скриншот этой странички и предъявите его при обращении.<br>
-                        Скидка действует всего 5 дней.<br>
-                        <div id="qrCode"></div><br>
+                        <h2>Поздравляем!</h2>
+                        <p>Вы получаете скидку 10% на все услуги нутрициолога Юлии Поповой.</p>
+                        <p>Для получения скидки, сделайте скриншот этой странички и предъявите его при обращении.</p>
+                        <p>Скидка действует всего 5 дней.</p>
+                        <div id="qrCode"></div>
+                        <button onclick="startGame()" class="menu-button" style="margin-top: 20px;">Играть снова</button>
                     </div>`;
                 messageDiv.innerHTML = message;
                 generateQRCode(promoCode);
             } else {
                 message = `
                     <div style="text-align: center;">
-                        Вы набрали ${score} баллов. К сожалению, для получения скидки вам нужно попробовать еще раз.<br>
-                        <button onclick="startGame()" class="menu-button">Сыграть еще раз</button>
+                        <h2>Игра окончена</h2>
+                        <p>Вы набрали ${score} баллов.</p>
+                        <p>К сожалению, для получения скидки вам нужно набрать 100 баллов или больше.</p>
+                        <button onclick="startGame()" class="menu-button">Играть снова</button>
                     </div>`;
                 messageDiv.innerHTML = message;
             }
@@ -252,8 +270,8 @@
             qrCodeDiv.innerHTML = '';
             new QRCode(qrCodeDiv, {
                 text: url,
-                width: 128,
-                height: 128
+                width: 200,
+                height: 200
             });
         }
 
@@ -272,13 +290,13 @@
             const item = items[index];
             if (item.type === 'bomb') {
                 bombSound.play();
-                score = 0;
+                score = Math.max(0, score - 20);  // Уменьшаем счет на 20, но не меньше 0
                 createExplosion(item.x, item.y);
             } else if (item.healthy) {
                 score += 5;
                 catchSound.play();
             } else {
-                score -= 10;
+                score = Math.max(0, score - 10);  // Уменьшаем счет на 10, но не меньше 0
                 missSound.play();
                 createExplosion(item.x, item.y);
             }
@@ -301,6 +319,7 @@
         }
 
         function checkItemTouch(e) {
+            e.preventDefault();  // Предотвращаем стандартное поведение касания
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
             const touchY = e.touches[0].clientY - rect.top;
