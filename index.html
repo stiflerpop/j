@@ -18,7 +18,6 @@
         #gameCanvas {
             display: none;
             border: 1px solid transparent;
-            background-color: #87CEEB;
         }
         #logo {
             margin-top: 20px;
@@ -140,6 +139,7 @@
             '9.png'
         ];
         const bombSrc = 'bomb.png';
+        const backgroundSrc = 'bag.jpeg';
 
         const goodItems = goodItemsSrc.map(src => {
             const img = new Image();
@@ -155,6 +155,9 @@
 
         const bombImage = new Image();
         bombImage.src = bombSrc;
+
+        const backgroundImage = new Image();
+        backgroundImage.src = backgroundSrc;
 
         let items = [];
         let score = 0;
@@ -226,14 +229,14 @@
                 const promoCode = 'DISCOUNT10';
                 message = `
                     <div style="text-align: center;">
-                        Поздравляем! Вы набрали ${score} баллов и получили скидку 10%!<br>
-                        Ваш промокод: ${promoCode}<br>
-                        Просто сделайте скриншот и покажите его при обращении.<br>
+                        Поздравляем! Вы получаете скидку 10 % на все услуги нутрициолога Юлии Поповой.<br>
+                        Для получения скидки, сделайте скриншот этой странички и предъявите его при обращении.<br>
+                        Скидка действует всего 5 дней.<br>
                         <div id="qrCode"></div><br>
                         <button onclick="startGame()" class="menu-button">Сыграть еще раз</button>
                     </div>`;
                 messageDiv.innerHTML = message;
-                generateQRCode(promoCode);
+                generateQRCode('https://www.instagram.com/yanutritiolog/');
             } else {
                 message = `
                     <div style="text-align: center;">
@@ -244,11 +247,11 @@
             }
         }
 
-        function generateQRCode(text) {
+        function generateQRCode(url) {
             const qrCodeDiv = document.getElementById('qrCode');
             qrCodeDiv.innerHTML = '';
             new QRCode(qrCodeDiv, {
-                text: text,
+                text: url,
                 width: 128,
                 height: 128
             });
@@ -317,6 +320,9 @@
             lastTimestamp = timestamp;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background image
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
             // Add new item
             if (Math.random() < 0.05) {
