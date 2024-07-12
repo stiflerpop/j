@@ -252,12 +252,15 @@
             let message;
             if (score >= 100) {
                 const promoCode = 'https://www.instagram.com/yanutritiolog/';
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + 14);
+                const expiryDateString = expiryDate.toLocaleDateString('ru-RU');
                 message = `
                     <div style="text-align: center;">
                         <h2>Поздравляем!</h2>
                         <p>Вы получаете скидку 10% на все услуги нутрициолога Юлии Поповой.</p>
                         <p>Для получения скидки, сделайте скриншот этой странички и предъявите его при обращении.</p>
-                        <p>Скидка действует всего 5 дней.</p>
+                        <p>Скидка действует до <span class="highlight">${expiryDateString}</span>.</p>
                         <div id="qrCode"></div>
                     </div>`;
                 messageDiv.innerHTML = message;
@@ -301,13 +304,13 @@
             const item = items[index];
             if (item.type === 'bomb') {
                 bombSound.play();
-                score = Math.max(0, score - 20);
+                score = 0; // Обнулить весь счет
                 createExplosion(item.x, item.y);
             } else if (item.healthy) {
                 score += 5;
                 catchSound.play();
             } else {
-                score = Math.max(0, score - 10);
+                score -= 10;
                 missSound.play();
                 createExplosion(item.x, item.y);
             }
@@ -353,13 +356,14 @@
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
             spawnTimer += delta;
-            if (spawnTimer > 1000) {
+            if (spawnTimer > 500) { // Уменьшить время для увеличения частоты появления предметов
                 spawnTimer = 0;
                 addItem();
+                addItem(); // Добавить еще один предмет
             }
 
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.006 * (delta / 16.67);
+                item.y += canvas.height * 0.008 * (delta / 16.67); // Увеличить скорость падения предметов
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
                 if (item.y > canvas.height) {
@@ -375,11 +379,11 @@
             const size = canvas.width * 0.12;
             let img, isHealthy, itemType;
 
-            if (type < 0.4) {
+            if (type < 0.2) { // Уменьшить вероятность появления полезных предметов
                 img = goodItems[Math.floor(Math.random() * goodItems.length)];
                 isHealthy = true;
                 itemType = 'good';
-            } else if (type < 0.8) {
+            } else if (type < 0.9) { // Увеличить вероятность появления вредных предметов
                 img = badItems[Math.floor(Math.random() * badItems.length)];
                 isHealthy = false;
                 itemType = 'bad';
