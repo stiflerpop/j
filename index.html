@@ -189,6 +189,7 @@
         let bombAppeared = 0;
         let isPaused = false;
         let lastTimestamp = 0;
+        let spawnTimer = 0;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9;
@@ -205,6 +206,7 @@
             bombAppeared = 0;
             isPaused = false;
             lastTimestamp = 0;
+            spawnTimer = 0;
             logo.style.display = 'none';
             title.style.display = 'none';
             startButton.style.display = 'none';
@@ -257,7 +259,6 @@
                         <p>Для получения скидки, сделайте скриншот этой странички и предъявите его при обращении.</p>
                         <p>Скидка действует всего 5 дней.</p>
                         <div id="qrCode"></div>
-                        <button onclick="startGame()" class="menu-button" style="margin-top: 20px;">Играть снова</button>
                     </div>`;
                 messageDiv.innerHTML = message;
                 generateQRCode(promoCode);
@@ -300,13 +301,13 @@
             const item = items[index];
             if (item.type === 'bomb') {
                 bombSound.play();
-                score = Math.max(0, score - 20);  // Уменьшаем счет на 20, но не меньше 0
+                score = Math.max(0, score - 20);
                 createExplosion(item.x, item.y);
             } else if (item.healthy) {
                 score += 5;
                 catchSound.play();
             } else {
-                score = Math.max(0, score - 10);  // Уменьшаем счет на 10, но не меньше 0
+                score = Math.max(0, score - 10);
                 missSound.play();
                 createExplosion(item.x, item.y);
             }
@@ -329,7 +330,7 @@
         }
 
         function checkItemTouch(e) {
-            e.preventDefault();  // Предотвращаем стандартное поведение касания
+            e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
             const touchY = e.touches[0].clientY - rect.top;
@@ -349,45 +350,12 @@
             lastTimestamp = timestamp;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
-            if (Math.random() < 0.05) {
-                const type = Math.random();
-                const size = canvas.width * 0.12;
-                let img, isHealthy, itemType;
-
-                if (type < 0.4) {
-                    img = goodItems[Math.floor(Math.random() * goodItems.length)];
-                    isHealthy = true;
-                    itemType = 'good';
-                } else if (type < 0.8) {
-                    img = badItems[Math.floor(Math.random() * badItems.length)];
-                    isHealthy = false;
-                    itemType = 'bad';
-                } else {
-                    img = bombImage;
-                    isHealthy = false;
-                    bombAppeared++;
-                    itemType = 'bomb';
-                }
-
-                if (img) {
-                    let x, y = 0;
-                    let isOverlapping;
-                    do {
-                        isOverlapping = false;
-                        x = Math.random() * (canvas.width - size);
-                        for (let item of items) {
-                            if (Math.abs(item.x - x) < size && Math.abs(item.y - y) < size) {
-                                isOverlapping = true;
-                                break;
-                            }
-                        }
-                    } while (isOverlapping);
-
-                    items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy, type: itemType });
-                }
+            spawnTimer += delta;
+            if (spawnTimer > 1000) {
+                spawnTimer = 0;
+                addItem();
             }
 
             items.forEach((item, index) => {
@@ -400,6 +368,44 @@
             });
 
             window.requestAnimationFrame(updateGame);
+        }
+
+        function addItem() {
+            const type = Math.random();
+            const size = canvas.width * 0.12;
+            let img, isHealthy, itemType;
+
+            if (type < 0.4) {
+                img = goodItems[Math.floor(Math.random() * goodItems.length)];
+                isHealthy = true;
+                itemType = 'good';
+            } else if (type < 0.8) {
+                img = badItems[Math.floor(Math.random() * badItems.length)];
+                isHealthy = false;
+                itemType = 'bad';
+            } else {
+                img = bombImage;
+                isHealthy = false;
+                bombAppeared++;
+                itemType = 'bomb';
+            }
+
+            if (img) {
+                let x, y = 0;
+                let isOverlapping;
+                do {
+                    isOverlapping = false;
+                    x = Math.random() * (canvas.width - size);
+                    for (let item of items) {
+                        if (Math.abs(item.x - x) < size && Math.abs(item.y - y) < size) {
+                            isOverlapping = true;
+                            break;
+                        }
+                    }
+                } while (isOverlapping);
+
+                items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy, type: itemType });
+            }
         }
 
         canvas.addEventListener('click', checkItemClick);
