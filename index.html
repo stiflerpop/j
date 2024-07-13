@@ -367,18 +367,19 @@
         addItem();
     }
 
-    items.forEach((item, index) => {
+    for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
         item.y += canvas.height * BASE_FALL_SPEED * difficulty * (delta / 1000);
         ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
         if (item.y > canvas.height) {
-            items.splice(index, 1);
+            items.splice(i, 1);
             if (item.healthy) {
-                score = Math.max(0, score - 5); // Уменьшаем счет на 5, но не меньше 0
+                score = Math.max(0, score - 5);
                 scoreDiv.innerHTML = `Счет: ${score}`;
             }
         }
-    });
+    }
 
     window.requestAnimationFrame(updateGame);
 }
