@@ -144,7 +144,10 @@
         const missSound = document.getElementById('missSound');
         const bombSound = document.getElementById('bombSound');
         const startButton = document.getElementById('startButton');
-
+        const BASE_FALL_SPEED = 0.2; // Базовая скорость падения (в % от высоты экрана в секунду)
+        const SPAWN_INTERVAL = 800; // Интервал появления предметов (в миллисекундах)
+        const MAX_ITEMS = 5; // Максимальное количество предметов на экране одновременно
+        const DIFFICULTY_INCREASE_INTERVAL = 5000; // Интервал увеличения сложности (в миллисекундах)
         const goodItemsSrc = [
             '1.png',
             '2.png',
@@ -220,6 +223,7 @@
             resizeCanvas();
             window.requestAnimationFrame(updateGame);
             countdownTimer();
+            setInterval(increaseDifficulty, DIFFICULTY_INCREASE_INTERVAL);
         }
 
         function countdownTimer() {
@@ -301,22 +305,22 @@
         }
 
         function handleItemClick(index) {
-            const item = items[index];
-            if (item.type === 'bomb') {
-                bombSound.play();
-                score = 0; // Обнулить весь счет
-                createExplosion(item.x, item.y);
-            } else if (item.healthy) {
-                score += 5;
-                catchSound.play();
-            } else {
-                score -= 10;
-                missSound.play();
-                createExplosion(item.x, item.y);
-            }
-            items.splice(index, 1);
-            scoreDiv.innerHTML = `Счет: ${score}`;
-        }
+    const item = items[index];
+    if (item.type === 'bomb') {
+        bombSound.play();
+        score = Math.max(0, score - 20); // Уменьшаем счет на 20, но не меньше 0
+        createExplosion(item.x, item.y);
+    } else if (item.healthy) {
+        score += 5;
+        catchSound.play();
+    } else {
+        score = Math.max(0, score - 10); // Уменьшаем счет на 10, но не меньше 0
+        missSound.play();
+        createExplosion(item.x, item.y);
+    }
+    items.splice(index, 1);
+    scoreDiv.innerHTML = `Счет: ${score}`;
+}
 
         function checkItemClick(e) {
             const rect = canvas.getBoundingClientRect();
@@ -348,32 +352,34 @@
         }
 
         function updateGame(timestamp) {
-            if (!gameStarted) return;
-            const delta = timestamp - lastTimestamp;
-            lastTimestamp = timestamp;
+    if (!gameStarted) return;
+    const delta = timestamp - lastTimestamp;
+    lastTimestamp = timestamp;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
-            spawnTimer += delta;
-            if (spawnTimer > 500) { // Уменьшить время для увеличения частоты появления предметов
-                spawnTimer = 0;
-                addItem();
-                addItem(); // Добавить еще один предмет
+    spawnTimer += delta;
+    if (spawnTimer > SPAWN_INTERVAL && items.length < MAX_ITEMS) {
+        spawnTimer = 0;
+        addItem();
+    }
+
+    items.forEach((item, index) => {
+        item.y += canvas.height * BASE_FALL_SPEED * difficulty * (delta / 1000);
+        ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
+
+        if (item.y > canvas.height) {
+            items.splice(index, 1);
+            if (item.healthy) {
+                score = Math.max(0, score - 5); // Уменьшаем счет на 5, но не меньше 0
+                scoreDiv.innerHTML = `Счет: ${score}`;
             }
-
-            items.forEach((item, index) => {
-                item.y += canvas.height * 0.008 * (delta / 16.67); // Увеличить скорость падения предметов
-                ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
-
-                if (item.y > canvas.height) {
-                    items.splice(index, 1);
-                }
-            });
-
-            window.requestAnimationFrame(updateGame);
         }
+    });
 
+    window.requestAnimationFrame(updateGame);
+}
         function addItem() {
             const type = Math.random();
             const size = canvas.width * 0.12;
@@ -412,6 +418,9 @@
             }
         }
 
+        function increaseDifficulty() {
+    difficulty += 0.1;
+}
         canvas.addEventListener('click', checkItemClick);
         canvas.addEventListener('touchstart', checkItemTouch);
 
