@@ -106,6 +106,20 @@
             font-weight: bold;
             color: #4CAF50;
         }
+        #instructions {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            text-align: center;
+            width: 80%;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
@@ -113,6 +127,7 @@
     <img id="logo" src="11.png" alt="Logo">
     <div id="title">Julia Game</div>
     <button id="startButton" class="menu-button">Начать игру</button>
+    <button id="howToPlayButton" class="menu-button">Как играть?</button>
     <div id="message"></div>
     <div id="score">Счет: 0</div>
     <div id="timer">Время: 30</div>
@@ -130,6 +145,16 @@
     <audio id="bombSound">
         <source src="bomb.mp3" type="audio/mpeg">
     </audio>
+    <div id="instructions">
+        <h2>Как играть</h2>
+        <p>Цель игры — собирать полезные продукты и избегать вредных.</p>
+        <ul>
+            <li>Кликайте или касайтесь полезных продуктов, чтобы получить очки.</li>
+            <li>Избегайте вредных продуктов и бомб, чтобы не потерять очки.</li>
+            <li>Старайтесь набрать как можно больше очков за отведенное время.</li>
+        </ul>
+        <button id="startGameFromInstructions" class="menu-button">Начать игру</button>
+    </div>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
@@ -144,6 +169,9 @@
         const missSound = document.getElementById('missSound');
         const bombSound = document.getElementById('bombSound');
         const startButton = document.getElementById('startButton');
+        const howToPlayButton = document.getElementById('howToPlayButton');
+        const instructionsDiv = document.getElementById('instructions');
+        const startGameFromInstructionsButton = document.getElementById('startGameFromInstructions');
 
         const goodItemsSrc = [
             '1.png',
@@ -210,6 +238,8 @@
             logo.style.display = 'none';
             title.style.display = 'none';
             startButton.style.display = 'none';
+            howToPlayButton.style.display = 'none';
+            instructionsDiv.style.display = 'none';
             canvas.style.display = 'block';
             scoreDiv.style.display = 'block';
             timerDiv.style.display = 'block';
@@ -220,6 +250,12 @@
             resizeCanvas();
             window.requestAnimationFrame(updateGame);
             countdownTimer();
+        }
+
+        function showInstructions() {
+            instructionsDiv.style.display = 'block';
+            startButton.style.display = 'none';
+            howToPlayButton.style.display = 'none';
         }
 
         function countdownTimer() {
@@ -416,6 +452,8 @@
         canvas.addEventListener('touchstart', checkItemTouch);
 
         startButton.addEventListener('click', startGame);
+        howToPlayButton.addEventListener('click', showInstructions);
+        startGameFromInstructionsButton.addEventListener('click', startGame);
     </script>
 </body>
 </html>
