@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Healthy Food Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -14,7 +15,7 @@
             height: 100vh;
             background-color: #87CEEB;
             flex-direction: column;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
         #gameCanvas {
             display: none;
@@ -40,6 +41,7 @@
             border: none;
             border-radius: 5px;
             margin-top: 20px;
+            font-family: 'Roboto', sans-serif;
         }
         #message {
             display: none;
@@ -62,6 +64,7 @@
             left: 10px;
             font-size: 32px;
             color: #000;
+            font-family: 'Roboto', sans-serif;
         }
         #timer {
             display: none;
@@ -70,6 +73,7 @@
             right: 10px;
             font-size: 32px;
             color: #000;
+            font-family: 'Roboto', sans-serif;
         }
         .explosion {
             position: absolute;
@@ -119,6 +123,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-family: 'Roboto', sans-serif;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -392,14 +397,14 @@
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
             spawnTimer += delta;
-            if (spawnTimer > 500) { // Уменьшить время для увеличения частоты появления предметов
+            if (spawnTimer > 500) {
                 spawnTimer = 0;
                 addItem();
-                addItem(); // Добавить еще один предмет
+                addItem();
             }
 
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.008 * (delta / 16.67); // Увеличить скорость падения предметов
+                item.y += canvas.height * 0.008 * (delta / 16.67);
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
                 if (item.y > canvas.height) {
@@ -415,11 +420,11 @@
             const size = canvas.width * 0.12;
             let img, isHealthy, itemType;
 
-            if (type < 0.2) { // Уменьшить вероятность появления полезных предметов
+            if (type < 0.2) {
                 img = goodItems[Math.floor(Math.random() * goodItems.length)];
                 isHealthy = true;
                 itemType = 'good';
-            } else if (type < 0.9) { // Увеличить вероятность появления вредных предметов
+            } else if (type < 0.9) {
                 img = badItems[Math.floor(Math.random() * badItems.length)];
                 isHealthy = false;
                 itemType = 'bad';
