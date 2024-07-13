@@ -160,7 +160,6 @@
             }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <img id="logo" src="fs.png" alt="Logo">
@@ -335,10 +334,6 @@
 
         function endGame() {
             gameStarted = false;
-            if (!isMuted) {
-                backgroundMusicGame.pause();
-                backgroundMusicIntro.play();
-            }
             items = [];
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             showEndMessage();
@@ -379,6 +374,9 @@
             const telegramButton = document.getElementById('telegramButton');
             if (telegramButton) {
                 telegramButton.addEventListener('click', () => {
+                    if (!isMuted) {
+                        backgroundMusicIntro.pause();
+                    }
                     window.location.href = 'https://t.me/julia_popova_nutritiolog';
                 });
             }
