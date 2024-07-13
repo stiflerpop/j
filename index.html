@@ -144,10 +144,7 @@
         const missSound = document.getElementById('missSound');
         const bombSound = document.getElementById('bombSound');
         const startButton = document.getElementById('startButton');
-        const BASE_FALL_SPEED = 0.01; // Базовая скорость падения (в % от высоты экрана в секунду)
-        const SPAWN_INTERVAL = 800; // Интервал появления предметов (в миллисекундах)
-        const MAX_ITEMS = 5; // Максимальное количество предметов на экране одновременно
-        const DIFFICULTY_INCREASE_INTERVAL = 5000; // Интервал увеличения сложности (в миллисекундах)
+
         const goodItemsSrc = [
             '1.png',
             '2.png',
@@ -193,7 +190,6 @@
         let isPaused = false;
         let lastTimestamp = 0;
         let spawnTimer = 0;
-        let difficulty = 1;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9;
@@ -207,7 +203,6 @@
             items = [];
             gameTime = 30;
             gameStarted = true;
-            difficulty = 1;
             bombAppeared = 0;
             isPaused = false;
             lastTimestamp = 0;
@@ -225,7 +220,6 @@
             resizeCanvas();
             window.requestAnimationFrame(updateGame);
             countdownTimer();
-            setInterval(increaseDifficulty, DIFFICULTY_INCREASE_INTERVAL);
         }
 
         function countdownTimer() {
@@ -310,13 +304,13 @@
             const item = items[index];
             if (item.type === 'bomb') {
                 bombSound.play();
-                score = Math.max(0, score - 20); // Уменьшаем счет на 20, но не меньше 0
+                score = 0; // Обнулить весь счет
                 createExplosion(item.x, item.y);
             } else if (item.healthy) {
                 score += 5;
                 catchSound.play();
             } else {
-                score = Math.max(0, score - 10); // Уменьшаем счет на 10, но не меньше 0
+                score -= 10;
                 missSound.play();
                 createExplosion(item.x, item.y);
             }
@@ -362,21 +356,18 @@
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
             spawnTimer += delta;
-            if (spawnTimer > SPAWN_INTERVAL && items.length < MAX_ITEMS) {
+            if (spawnTimer > 500) { // Уменьшить время для увеличения частоты появления предметов
                 spawnTimer = 0;
                 addItem();
+                addItem(); // Добавить еще один предмет
             }
 
             items.forEach((item, index) => {
-                item.y += canvas.height * BASE_FALL_SPEED * difficulty * (delta / 1000);
+                item.y += canvas.height * 0.008 * (delta / 16.67); // Увеличить скорость падения предметов
                 ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
 
                 if (item.y > canvas.height) {
                     items.splice(index, 1);
-                    if (item.healthy) {
-                        score = Math.max(0, score - 5); // Уменьшаем счет на 5, но не меньше 0
-                        scoreDiv.innerHTML = `Счет: ${score}`;
-                    }
                 }
             });
 
@@ -388,11 +379,11 @@
             const size = canvas.width * 0.12;
             let img, isHealthy, itemType;
 
-            if (type < 0.4) { // Уменьшить вероятность появления полезных предметов
+            if (type < 0.2) { // Уменьшить вероятность появления полезных предметов
                 img = goodItems[Math.floor(Math.random() * goodItems.length)];
                 isHealthy = true;
                 itemType = 'good';
-            } else if (type < 0.95) { // Увеличить вероятность появления вредных предметов
+            } else if (type < 0.9) { // Увеличить вероятность появления вредных предметов
                 img = badItems[Math.floor(Math.random() * badItems.length)];
                 isHealthy = false;
                 itemType = 'bad';
@@ -419,10 +410,6 @@
 
                 items.push({ x: x, y: y, width: size, height: size, img: img, healthy: isHealthy, type: itemType });
             }
-        }
-
-        function increaseDifficulty() {
-            difficulty += 0.1;
         }
 
         canvas.addEventListener('click', checkItemClick);
