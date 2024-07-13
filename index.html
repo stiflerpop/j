@@ -106,22 +106,8 @@
                 transform: rotate(360deg);
             }
         }
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
         .rotating {
             animation: rotate 3s linear infinite;
-        }
-        .pulsing {
-            animation: pulse 1s ease-in-out infinite;
         }
         #qrCode {
             display: flex;
@@ -437,11 +423,7 @@
                 item.y += canvas.height * 0.008 * (delta / 16.67);
                 ctx.save();
                 ctx.translate(item.x + item.width / 2, item.y + item.height / 2);
-                if (item.type === 'good') {
-                    ctx.rotate((timestamp / 1000) * 2 * Math.PI / 3); // Вращение для полезных предметов
-                } else if (item.type === 'bad') {
-                    ctx.scale(Math.sin(timestamp / 200) * 0.1 + 1, Math.sin(timestamp / 200) * 0.1 + 1); // Пульсация для вредных предметов
-                }
+                ctx.rotate((timestamp / 1000) * 2 * Math.PI / 3); // Вращение для всех предметов
                 ctx.drawImage(item.img, -item.width / 2, -item.height / 2, item.width, item.height);
                 ctx.restore();
 
