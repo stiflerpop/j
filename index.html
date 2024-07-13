@@ -144,7 +144,7 @@
         const missSound = document.getElementById('missSound');
         const bombSound = document.getElementById('bombSound');
         const startButton = document.getElementById('startButton');
-        const BASE_FALL_SPEED = 0.2; // Базовая скорость падения (в % от высоты экрана в секунду)
+        const BASE_FALL_SPEED = 0.005; // Базовая скорость падения (в % от высоты экрана в секунду)
         const SPAWN_INTERVAL = 800; // Интервал появления предметов (в миллисекундах)
         const MAX_ITEMS = 5; // Максимальное количество предметов на экране одновременно
         const DIFFICULTY_INCREASE_INTERVAL = 5000; // Интервал увеличения сложности (в миллисекундах)
@@ -307,22 +307,22 @@
         }
 
         function handleItemClick(index) {
-    const item = items[index];
-    if (item.type === 'bomb') {
-        bombSound.play();
-        score = Math.max(0, score - 20); // Уменьшаем счет на 20, но не меньше 0
-        createExplosion(item.x, item.y);
-    } else if (item.healthy) {
-        score += 5;
-        catchSound.play();
-    } else {
-        score = Math.max(0, score - 10); // Уменьшаем счет на 10, но не меньше 0
-        missSound.play();
-        createExplosion(item.x, item.y);
-    }
-    items.splice(index, 1);
-    scoreDiv.innerHTML = `Счет: ${score}`;
-}
+            const item = items[index];
+            if (item.type === 'bomb') {
+                bombSound.play();
+                score = Math.max(0, score - 20); // Уменьшаем счет на 20, но не меньше 0
+                createExplosion(item.x, item.y);
+            } else if (item.healthy) {
+                score += 5;
+                catchSound.play();
+            } else {
+                score = Math.max(0, score - 10); // Уменьшаем счет на 10, но не меньше 0
+                missSound.play();
+                createExplosion(item.x, item.y);
+            }
+            items.splice(index, 1);
+            scoreDiv.innerHTML = `Счет: ${score}`;
+        }
 
         function checkItemClick(e) {
             const rect = canvas.getBoundingClientRect();
@@ -354,35 +354,35 @@
         }
 
         function updateGame(timestamp) {
-    if (!gameStarted) return;
-    const delta = timestamp - lastTimestamp;
-    lastTimestamp = timestamp;
+            if (!gameStarted) return;
+            const delta = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
-    spawnTimer += delta;
-    if (spawnTimer > SPAWN_INTERVAL && items.length < MAX_ITEMS) {
-        spawnTimer = 0;
-        addItem();
-    }
-
-    for (let i = items.length - 1; i >= 0; i--) {
-        const item = items[i];
-        item.y += canvas.height * BASE_FALL_SPEED * difficulty * (delta / 1000);
-        ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
-
-        if (item.y > canvas.height) {
-            items.splice(i, 1);
-            if (item.healthy) {
-                score = Math.max(0, score - 5);
-                scoreDiv.innerHTML = `Счет: ${score}`;
+            spawnTimer += delta;
+            if (spawnTimer > SPAWN_INTERVAL && items.length < MAX_ITEMS) {
+                spawnTimer = 0;
+                addItem();
             }
-        }
-    }
 
-    window.requestAnimationFrame(updateGame);
-}
+            items.forEach((item, index) => {
+                item.y += canvas.height * BASE_FALL_SPEED * difficulty * (delta / 1000);
+                ctx.drawImage(item.img, item.x, item.y, item.width, item.height);
+
+                if (item.y > canvas.height) {
+                    items.splice(index, 1);
+                    if (item.healthy) {
+                        score = Math.max(0, score - 5); // Уменьшаем счет на 5, но не меньше 0
+                        scoreDiv.innerHTML = `Счет: ${score}`;
+                    }
+                }
+            });
+
+            window.requestAnimationFrame(updateGame);
+        }
+
         function addItem() {
             const type = Math.random();
             const size = canvas.width * 0.12;
@@ -422,8 +422,9 @@
         }
 
         function increaseDifficulty() {
-    difficulty += 0.1;
-}
+            difficulty += 0.1;
+        }
+
         canvas.addEventListener('click', checkItemClick);
         canvas.addEventListener('touchstart', checkItemTouch);
 
