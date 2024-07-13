@@ -337,7 +337,7 @@
             gameStarted = false;
             if (!isMuted) {
                 backgroundMusicGame.pause();
-                backgroundMusicGame.currentTime = 0;
+                backgroundMusicIntro.play();
             }
             items = [];
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -382,16 +382,6 @@
                     window.location.href = 'https://t.me/julia_popova_nutritiolog';
                 });
             }
-        }
-
-        function generateQRCode(url) {
-            const qrCodeDiv = document.getElementById('qrCode');
-            qrCodeDiv.innerHTML = '';
-            new QRCode(qrCodeDiv, {
-                text: url,
-                width: 200,
-                height: 200
-            });
         }
 
         function createExplosion(x, y) {
