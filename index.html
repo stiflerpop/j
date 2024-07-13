@@ -193,6 +193,7 @@
         let isPaused = false;
         let lastTimestamp = 0;
         let spawnTimer = 0;
+        let difficulty = 1;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth * 0.9;
@@ -206,6 +207,7 @@
             items = [];
             gameTime = 30;
             gameStarted = true;
+            difficulty = 1;
             bombAppeared = 0;
             isPaused = false;
             lastTimestamp = 0;
