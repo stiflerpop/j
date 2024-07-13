@@ -34,12 +34,6 @@
             max-width: 50%;
             height: auto;
         }
-        #title {
-            font-size: 2em;
-            color: white;
-            margin: 20px 0;
-            text-align: center;
-        }
         .menu-button {
             padding: 20px 40px;
             font-size: 1.5em;
@@ -73,6 +67,9 @@
             font-size: 24px;
             color: #000;
             font-family: 'Roboto', sans-serif;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
         }
         #timer {
             display: none;
@@ -82,6 +79,9 @@
             font-size: 24px;
             color: #000;
             font-family: 'Roboto', sans-serif;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
         }
         .explosion {
             position: absolute;
@@ -149,7 +149,6 @@
 </head>
 <body>
     <img id="logo" src="fs.png" alt="Logo">
-    <div id="title">Julia Game</div>
     <button id="startButton" class="menu-button">Начать игру</button>
     <button id="howToPlayButton" class="menu-button">Как играть?</button>
     <div id="message"></div>
@@ -184,7 +183,6 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const logo = document.getElementById('logo');
-        const title = document.getElementById('title');
         const messageDiv = document.getElementById('message');
         const scoreDiv = document.getElementById('score');
         const timerDiv = document.getElementById('timer');
@@ -244,8 +242,14 @@
         let spawnTimer = 0;
 
         function resizeCanvas() {
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
+            const aspectRatio = 800 / 600; // Aspect ratio of the game canvas
+            if (window.innerWidth / window.innerHeight > aspectRatio) {
+                canvas.height = window.innerHeight * 0.7;
+                canvas.width = canvas.height * aspectRatio;
+            } else {
+                canvas.width = window.innerWidth * 0.9;
+                canvas.height = canvas.width / aspectRatio;
+            }
         }
 
         window.addEventListener('resize', resizeCanvas);
@@ -260,7 +264,6 @@
             lastTimestamp = 0;
             spawnTimer = 0;
             logo.style.display = 'none';
-            title.style.display = 'none';
             startButton.style.display = 'none';
             howToPlayButton.style.display = 'none';
             instructionsDiv.style.display = 'none';
@@ -321,8 +324,7 @@
                         <p>Вы получаете скидку 10% на все услуги нутрициолога Юлии Поповой.</p>
                         <p>Для получения скидки, сделайте скриншот этой странички и предъявите его при обращении.</p>
                         <p>Скидка действует до <span class="highlight">${expiryDateString}</span>.</p>
-                        <div id="qrCode"></div>
-                    </div>`;
+                        <div id="qrCode"></div>`;
                 messageDiv.innerHTML = message;
                 generateQRCode(promoCode);
             } else {
@@ -333,8 +335,7 @@
                         <p class="result-message">Отличная попытка! Для получения скидки нужно набрать 100 баллов или больше.</p>
                         <p>Не расстраивайтесь, у вас обязательно получится в следующий раз!</p>
                         <p>Хотите попробовать еще раз?</p>
-                        <button onclick="startGame()" class="menu-button">Играть снова</button>
-                    </div>`;
+                        <button onclick="startGame()" class="menu-button">Играть снова</button>`;
                 messageDiv.innerHTML = message;
             }
         }
