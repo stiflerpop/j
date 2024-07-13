@@ -144,7 +144,7 @@
         const missSound = document.getElementById('missSound');
         const bombSound = document.getElementById('bombSound');
         const startButton = document.getElementById('startButton');
-        const BASE_FALL_SPEED = 0.005; // Базовая скорость падения (в % от высоты экрана в секунду)
+        const BASE_FALL_SPEED = 0.01; // Базовая скорость падения (в % от высоты экрана в секунду)
         const SPAWN_INTERVAL = 800; // Интервал появления предметов (в миллисекундах)
         const MAX_ITEMS = 5; // Максимальное количество предметов на экране одновременно
         const DIFFICULTY_INCREASE_INTERVAL = 5000; // Интервал увеличения сложности (в миллисекундах)
@@ -388,11 +388,11 @@
             const size = canvas.width * 0.12;
             let img, isHealthy, itemType;
 
-            if (type < 0.2) { // Уменьшить вероятность появления полезных предметов
+            if (type < 0.4) { // Уменьшить вероятность появления полезных предметов
                 img = goodItems[Math.floor(Math.random() * goodItems.length)];
                 isHealthy = true;
                 itemType = 'good';
-            } else if (type < 0.9) { // Увеличить вероятность появления вредных предметов
+            } else if (type < 0.95) { // Увеличить вероятность появления вредных предметов
                 img = badItems[Math.floor(Math.random() * badItems.length)];
                 isHealthy = false;
                 itemType = 'bad';
