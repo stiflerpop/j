@@ -2,29 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Healthy Food Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
         body {
+            margin: 0;
+            overflow: hidden;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             background-image: url('bag.jpeg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            flex-direction: column;
             font-family: 'Roboto', sans-serif;
         }
         #gameCanvas {
@@ -33,79 +26,88 @@
             border-radius: 20px;
             width: 90%;
             max-width: 800px;
-            height: 70vh;
+            height: 70%;
             max-height: 600px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
         }
         #logo {
+            margin-top: 20px;
             max-width: 50%;
             height: auto;
-            margin-bottom: 20px;
+        }
+        #title {
+            font-size: 2em;
+            color: white;
+            margin: 20px 0;
+            text-align: center;
         }
         .menu-button {
-            padding: 15px 30px;
-            font-size: 1.2em;
+            padding: 20px 40px;
+            font-size: 1.5em;
             cursor: pointer;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
-            margin-top: 10px;
+            margin-top: 20px;
             font-family: 'Roboto', sans-serif;
         }
-        #message, #instructions {
+        #message {
             display: none;
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 18px;
+            font-size: 24px;
             text-align: center;
             width: 90%;
-            max-width: 600px;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-        #score, #timer {
-            display: none;
-            position: fixed;
-            font-size: 18px;
-            color: #000;
-            background-color: rgba(255, 255, 255, 0.7);
-            padding: 5px 10px;
-            border-radius: 5px;
-            z-index: 100;
         }
         #score {
+            display: none;
+            position: absolute;
             top: 10px;
             left: 10px;
+            font-size: 24px;
+            color: #000;
+            font-family: 'Roboto', sans-serif;
         }
         #timer {
+            display: none;
+            position: absolute;
             top: 10px;
             right: 10px;
+            font-size: 24px;
+            color: #000;
+            font-family: 'Roboto', sans-serif;
         }
-		.explosion {
+        .explosion {
             position: absolute;
             width: 50px;
             height: 50px;
             background: url('explosion.png') no-repeat center center;
             background-size: cover;
             animation: explode 0.5s ease-out;
-            z-index: 1000;
         }
         @keyframes explode {
-            from { transform: scale(1); opacity: 1; }
-            to { transform: scale(2); opacity: 0; }
+            from {
+                transform: scale(1);
+                opacity: 1;
+            }
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
         }
         @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
         }
         .rotating {
             animation: rotate 3s linear infinite;
@@ -127,11 +129,27 @@
             font-weight: bold;
             color: #4CAF50;
         }
+        #instructions {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            text-align: center;
+            width: 90%;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            font-family: 'Roboto', sans-serif;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <img id="logo" src="fs.png" alt="Logo">
+    <div id="title">Julia Game</div>
     <button id="startButton" class="menu-button">Начать игру</button>
     <button id="howToPlayButton" class="menu-button">Как играть?</button>
     <div id="message"></div>
@@ -140,6 +158,7 @@
     <canvas id="gameCanvas"></canvas>
     <audio id="backgroundMusic" loop>
         <source src="1.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
     </audio>
     <audio id="catchSound">
         <source src="catch.mp3" type="audio/mpeg">
@@ -162,9 +181,10 @@
     </div>
 
     <script>
-	const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const logo = document.getElementById('logo');
+        const title = document.getElementById('title');
         const messageDiv = document.getElementById('message');
         const scoreDiv = document.getElementById('score');
         const timerDiv = document.getElementById('timer');
@@ -177,8 +197,22 @@
         const instructionsDiv = document.getElementById('instructions');
         const startGameFromInstructionsButton = document.getElementById('startGameFromInstructions');
 
-        const goodItemsSrc = ['1.png', '2.png', '3.png', '10.png', '11.png', '12.png'];
-        const badItemsSrc = ['4.png', '5.png', '6.png', '7.png', '8.png', '9.png'];
+        const goodItemsSrc = [
+            '1.png',
+            '2.png',
+            '3.png',
+            '10.png',
+            '11.png',
+            '12.png'
+        ];
+        const badItemsSrc = [
+            '4.png',
+            '5.png',
+            '6.png',
+            '7.png',
+            '8.png',
+            '9.png'
+        ];
         const bombSrc = 'bomb.png';
         const backgroundSrc = 'bag.jpeg';
 
@@ -226,6 +260,7 @@
             lastTimestamp = 0;
             spawnTimer = 0;
             logo.style.display = 'none';
+            title.style.display = 'none';
             startButton.style.display = 'none';
             howToPlayButton.style.display = 'none';
             instructionsDiv.style.display = 'none';
@@ -313,7 +348,8 @@
                 height: 200
             });
         }
-		function createExplosion(x, y) {
+
+        function createExplosion(x, y) {
             const explosion = document.createElement('div');
             explosion.className = 'explosion';
             explosion.style.left = `${x}px`;
@@ -328,13 +364,13 @@
             const item = items[index];
             if (item.type === 'bomb') {
                 bombSound.play();
-                score = Math.max(0, score - 20); // Вместо обнуления счета, отнимаем 20 очков
+                score = 0; // Обнулить весь счет
                 createExplosion(item.x, item.y);
             } else if (item.healthy) {
                 score += 5;
                 catchSound.play();
             } else {
-                score = Math.max(0, score - 10);
+                score -= 10;
                 missSound.play();
                 createExplosion(item.x, item.y);
             }
@@ -346,11 +382,10 @@
             const rect = canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
-            
+
             for (let i = items.length - 1; i >= 0; i--) {
                 const item = items[i];
-                if (clickX >= item.x && clickX <= item.x + item.width &&
-                    clickY >= item.y && clickY <= item.y + item.height) {
+                if (clickX >= item.x && clickX <= item.x + item.width && clickY >= item.y && clickY <= item.y + item.height) {
                     handleItemClick(i);
                     break;
                 }
@@ -362,11 +397,10 @@
             const rect = canvas.getBoundingClientRect();
             const touchX = e.touches[0].clientX - rect.left;
             const touchY = e.touches[0].clientY - rect.top;
-            
+
             for (let i = items.length - 1; i >= 0; i--) {
                 const item = items[i];
-                if (touchX >= item.x && touchX <= item.x + item.width &&
-                    touchY >= item.y && touchY <= item.y + item.height) {
+                if (touchX >= item.x && touchX <= item.x + item.width && touchY >= item.y && touchY <= item.y + item.height) {
                     handleItemClick(i);
                     break;
                 }
@@ -389,10 +423,10 @@
             }
 
             items.forEach((item, index) => {
-                item.y += canvas.height * 0.003 * (delta / 16.67); // Уменьшена скорость падения
+                item.y += canvas.height * 0.008 * (delta / 16.67);
                 ctx.save();
                 ctx.translate(item.x + item.width / 2, item.y + item.height / 2);
-                ctx.rotate((timestamp / 1000) * 2 * Math.PI / 3);
+                ctx.rotate((timestamp / 1000) * 2 * Math.PI / 3); // Вращение для всех предметов
                 ctx.drawImage(item.img, -item.width / 2, -item.height / 2, item.width, item.height);
                 ctx.restore();
 
@@ -406,10 +440,10 @@
 
         function addItem() {
             const type = Math.random();
-            const size = Math.min(canvas.width, canvas.height) * 0.08; // Адаптивный размер предметов
+            const size = canvas.width * 0.12;
             let img, isHealthy, itemType;
 
-            if (type < 0.4) { // Увеличена вероятность появления полезных предметов
+            if (type < 0.2) {
                 img = goodItems[Math.floor(Math.random() * goodItems.length)];
                 isHealthy = true;
                 itemType = 'good';
@@ -425,7 +459,7 @@
             }
 
             if (img) {
-                let x, y = -size;
+                let x, y = 0;
                 let isOverlapping;
                 do {
                     isOverlapping = false;
@@ -448,10 +482,6 @@
         startButton.addEventListener('click', startGame);
         howToPlayButton.addEventListener('click', showInstructions);
         startGameFromInstructionsButton.addEventListener('click', startGame);
-
-        // Инициализация игры
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
     </script>
 </body>
 </html>
