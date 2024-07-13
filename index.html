@@ -31,24 +31,32 @@
         }
         #logo {
             margin-top: 20px;
-            max-width: 50%;
+            width: 40%;
             height: auto;
         }
         .menu-button {
-            padding: 20px 40px;
-            font-size: 1.5em;
+            padding: 15px 30px;
+            font-size: 1.2em;
             cursor: pointer;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
-            margin-top: 20px;
+            margin-top: 15px;
             font-family: 'Roboto', sans-serif;
             transition: background-color 0.3s, transform 0.3s;
         }
         .menu-button:hover {
             background-color: #45a049;
             transform: scale(1.05);
+        }
+        .no-sound-button {
+            border: 2px solid red;
+            background-color: white;
+            color: red;
+        }
+        .no-sound-button:hover {
+            background-color: #ffe6e6;
         }
         #message {
             display: none;
@@ -153,7 +161,7 @@
                 padding: 10px 20px;
             }
             #logo {
-                max-width: 80%;
+                width: 70%;
             }
         }
     </style>
@@ -163,12 +171,17 @@
     <img id="logo" src="fs.png" alt="Logo">
     <button id="startButton" class="menu-button">Начать игру</button>
     <button id="howToPlayButton" class="menu-button">Как играть?</button>
+    <button id="muteButton" class="menu-button no-sound-button">Без звука</button>
     <div id="message"></div>
     <div id="score">Счет: 0</div>
     <div id="timer">Время: 30</div>
     <canvas id="gameCanvas"></canvas>
-    <audio id="backgroundMusic" loop>
-        <source src="1.mp3" type="audio/mpeg">
+    <audio id="backgroundMusicIntro" loop>
+        <source src="1p.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="backgroundMusicGame" loop>
+        <source src="2p.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
     <audio id="catchSound">
@@ -198,12 +211,14 @@
         const messageDiv = document.getElementById('message');
         const scoreDiv = document.getElementById('score');
         const timerDiv = document.getElementById('timer');
-        const backgroundMusic = document.getElementById('backgroundMusic');
+        const backgroundMusicIntro = document.getElementById('backgroundMusicIntro');
+        const backgroundMusicGame = document.getElementById('backgroundMusicGame');
         const catchSound = document.getElementById('catchSound');
         const missSound = document.getElementById('missSound');
         const bombSound = document.getElementById('bombSound');
         const startButton = document.getElementById('startButton');
         const howToPlayButton = document.getElementById('howToPlayButton');
+        const muteButton = document.getElementById('muteButton');
         const instructionsDiv = document.getElementById('instructions');
         const startGameFromInstructionsButton = document.getElementById('startGameFromInstructions');
 
@@ -252,6 +267,7 @@
         let isPaused = false;
         let lastTimestamp = 0;
         let spawnTimer = 0;
+        let isMuted = false;
 
         function resizeCanvas() {
             canvas.width = canvas.clientWidth;
@@ -272,6 +288,7 @@
             logo.style.display = 'none';
             startButton.style.display = 'none';
             howToPlayButton.style.display = 'none';
+            muteButton.style.display = 'none';
             instructionsDiv.style.display = 'none';
             canvas.style.display = 'block';
             scoreDiv.style.display = 'block';
@@ -279,7 +296,11 @@
             messageDiv.style.display = 'none';
             scoreDiv.innerHTML = `Счет: ${score}`;
             timerDiv.innerHTML = `Время: ${gameTime}`;
-            backgroundMusic.play();
+            if (!isMuted) {
+                backgroundMusicIntro.pause();
+                backgroundMusicIntro.currentTime = 0;
+                backgroundMusicGame.play();
+            }
             resizeCanvas();
             window.requestAnimationFrame(updateGame);
             countdownTimer();
@@ -289,6 +310,19 @@
             instructionsDiv.style.display = 'block';
             startButton.style.display = 'none';
             howToPlayButton.style.display = 'none';
+            muteButton.style.display = 'none';
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            if (isMuted) {
+                backgroundMusicIntro.pause();
+                backgroundMusicGame.pause();
+                muteButton.innerText = 'Со звуком';
+            } else {
+                backgroundMusicIntro.play();
+                muteButton.innerText = 'Без звука';
+            }
         }
 
         function countdownTimer() {
@@ -306,8 +340,10 @@
 
         function endGame() {
             gameStarted = false;
-            backgroundMusic.pause();
-            backgroundMusic.currentTime = 0;
+            if (!isMuted) {
+                backgroundMusicGame.pause();
+                backgroundMusicGame.currentTime = 0;
+            }
             items = [];
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             showEndMessage();
@@ -372,15 +408,15 @@
         function handleItemClick(index) {
             const item = items[index];
             if (item.type === 'bomb') {
-                bombSound.play();
+                if (!isMuted) bombSound.play();
                 score = 0; // Обнулить весь счет
                 createExplosion(item.x, item.y);
             } else if (item.healthy) {
                 score += 5;
-                catchSound.play();
+                if (!isMuted) catchSound.play();
             } else {
                 score -= 10;
-                missSound.play();
+                if (!isMuted) missSound.play();
                 createExplosion(item.x, item.y);
             }
             items.splice(index, 1);
@@ -490,7 +526,13 @@
 
         startButton.addEventListener('click', startGame);
         howToPlayButton.addEventListener('click', showInstructions);
+        muteButton.addEventListener('click', toggleMute);
         startGameFromInstructionsButton.addEventListener('click', startGame);
+
+        // Play intro music if not muted
+        if (!isMuted) {
+            backgroundMusicIntro.play();
+        }
     </script>
 </body>
 </html>
