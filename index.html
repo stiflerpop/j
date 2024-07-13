@@ -12,18 +12,19 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             background-color: #87CEEB;
             flex-direction: column;
             font-family: 'Roboto', sans-serif;
-            box-sizing: border-box;
         }
         #gameCanvas {
             display: none;
             border: 1px solid transparent;
             border-radius: 20px;
-            width: 90vw;
-            height: 90vh;
+            width: 90%;
+            max-width: 800px;
+            height: 70%;
+            max-height: 600px;
         }
         #logo {
             margin-top: 20px;
@@ -34,16 +35,17 @@
             font-size: 2em;
             color: white;
             margin: 20px 0;
+            text-align: center;
         }
         .menu-button {
-            padding: 20px 40px;
-            font-size: 1.5em;
+            padding: 10px 20px;
+            font-size: 1.2em;
             cursor: pointer;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
-            margin-top: 20px;
+            margin-top: 10px;
             font-family: 'Roboto', sans-serif;
         }
         #message {
@@ -54,19 +56,18 @@
             transform: translate(-50%, -50%);
             font-size: 24px;
             text-align: center;
-            width: 80%;
+            width: 90%;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            box-sizing: border-box;
         }
         #score {
             display: none;
             position: absolute;
             top: 10px;
             left: 10px;
-            font-size: 32px;
+            font-size: 24px;
             color: #000;
             font-family: 'Roboto', sans-serif;
         }
@@ -75,7 +76,7 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            font-size: 32px;
+            font-size: 24px;
             color: #000;
             font-family: 'Roboto', sans-serif;
         }
@@ -122,22 +123,12 @@
             transform: translate(-50%, -50%);
             font-size: 24px;
             text-align: center;
-            width: 80%;
+            width: 90%;
             background-color: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             font-family: 'Roboto', sans-serif;
-            box-sizing: border-box;
-        }
-        @media (max-width: 600px) {
-            #gameCanvas {
-                width: 100vw;
-                height: 80vh;
-            }
-            #message, #instructions {
-                width: 90%;
-            }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -239,8 +230,8 @@
         let spawnTimer = 0;
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth * 0.9;
-            canvas.height = window.innerHeight * 0.9;
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
         }
 
         window.addEventListener('resize', resizeCanvas);
