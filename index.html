@@ -12,15 +12,18 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #87CEEB;
             flex-direction: column;
             font-family: 'Roboto', sans-serif;
+            box-sizing: border-box;
         }
         #gameCanvas {
             display: none;
             border: 1px solid transparent;
             border-radius: 20px;
+            width: 90vw;
+            height: 90vh;
         }
         #logo {
             margin-top: 20px;
@@ -56,6 +59,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
         }
         #score {
             display: none;
@@ -124,6 +128,16 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             font-family: 'Roboto', sans-serif;
+            box-sizing: border-box;
+        }
+        @media (max-width: 600px) {
+            #gameCanvas {
+                width: 100vw;
+                height: 80vh;
+            }
+            #message, #instructions {
+                width: 90%;
+            }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
