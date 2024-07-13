@@ -34,12 +34,6 @@
             max-width: 50%;
             height: auto;
         }
-        #title {
-            font-size: 2em;
-            color: white;
-            margin: 20px 0;
-            text-align: center;
-        }
         .menu-button {
             padding: 20px 40px;
             font-size: 1.5em;
@@ -50,6 +44,11 @@
             border-radius: 5px;
             margin-top: 20px;
             font-family: 'Roboto', sans-serif;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .menu-button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
         }
         #message {
             display: none;
@@ -65,23 +64,23 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        #score {
+        #score, #timer {
             display: none;
             position: absolute;
-            top: 10px;
-            left: 10px;
+            padding: 10px 20px;
             font-size: 24px;
             color: #000;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
             font-family: 'Roboto', sans-serif;
         }
+        #score {
+            top: 10px;
+            left: 10px;
+        }
         #timer {
-            display: none;
-            position: absolute;
             top: 10px;
             right: 10px;
-            font-size: 24px;
-            color: #000;
-            font-family: 'Roboto', sans-serif;
         }
         .explosion {
             position: absolute;
@@ -144,12 +143,24 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             font-family: 'Roboto', sans-serif;
         }
+        @media (max-width: 600px) {
+            #gameCanvas {
+                width: 100%;
+                height: 100%;
+            }
+            .menu-button {
+                font-size: 1em;
+                padding: 10px 20px;
+            }
+            #logo {
+                max-width: 80%;
+            }
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <img id="logo" src="fs.png" alt="Logo">
-    <div id="title">Julia Game</div>
     <button id="startButton" class="menu-button">Начать игру</button>
     <button id="howToPlayButton" class="menu-button">Как играть?</button>
     <div id="message"></div>
@@ -184,7 +195,6 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const logo = document.getElementById('logo');
-        const title = document.getElementById('title');
         const messageDiv = document.getElementById('message');
         const scoreDiv = document.getElementById('score');
         const timerDiv = document.getElementById('timer');
@@ -260,7 +270,6 @@
             lastTimestamp = 0;
             spawnTimer = 0;
             logo.style.display = 'none';
-            title.style.display = 'none';
             startButton.style.display = 'none';
             howToPlayButton.style.display = 'none';
             instructionsDiv.style.display = 'none';
