@@ -242,14 +242,8 @@
         let spawnTimer = 0;
 
         function resizeCanvas() {
-            const aspectRatio = 800 / 600; // Aspect ratio of the game canvas
-            if (window.innerWidth / window.innerHeight > aspectRatio) {
-                canvas.height = window.innerHeight * 0.7;
-                canvas.width = canvas.height * aspectRatio;
-            } else {
-                canvas.width = window.innerWidth * 0.9;
-                canvas.height = canvas.width / aspectRatio;
-            }
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
         }
 
         window.addEventListener('resize', resizeCanvas);
@@ -417,7 +411,7 @@
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
             spawnTimer += delta;
-            if (spawnTimer > 1000) {
+            if (spawnTimer > 500) {
                 spawnTimer = 0;
                 addItem();
                 addItem();
