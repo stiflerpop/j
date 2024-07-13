@@ -13,8 +13,10 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #87CEEB;
-            flex-direction: column;
+            background-image: url('b1.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             font-family: 'Roboto', sans-serif;
         }
         #gameCanvas {
@@ -211,7 +213,7 @@
             '9.png'
         ];
         const bombSrc = 'bomb.png';
-        const backgroundSrc = 'bag.jpeg';
+        const backgroundSrc = 'b1.jpeg';
 
         const goodItems = goodItemsSrc.map(src => {
             const img = new Image();
